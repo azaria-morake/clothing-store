@@ -116,7 +116,7 @@ Product {
   updatedAt: Date
 }
 ```
-##model Variant {
+## model Variant {
   id         String   @id @default(uuid())
   productId  String
   product    Product  @relation(fields: [productId], references: [id])
