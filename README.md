@@ -116,7 +116,9 @@ Product {
   updatedAt: Date
 }
 ```
-## model Variant {
+### model Variant 
+```ts
+Variant {
   id         String   @id @default(uuid())
   productId  String
   product    Product  @relation(fields: [productId], references: [id])
@@ -132,7 +134,7 @@ Product {
 
   @@unique([productId, size, color]) // prevent duplicate variant entries
 }
-
+```
 ### Wishlist
 
 ```ts
