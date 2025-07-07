@@ -10,7 +10,7 @@ A modern, full-stack online clothing store built with **Next.js**, featuring aut
 ### ✅ Standard Features
 
 - 🔐 **Secure Authentication**
-  - Register, login/logout using JWT in HTTP-only cookies
+  - Register, login/logout using JWT in HTTP-only cookies/user roles/ multi-session, OAuth, and MFA
 - 💖 **Wishlist**
   - Logged-in users can add/remove items
 - 🛒 **Basket**
@@ -22,7 +22,9 @@ A modern, full-stack online clothing store built with **Next.js**, featuring aut
 - 🔁 **Returns**
   - Users can request returns; admins can review them
 - 🧾 **Order Tracking**
-  - View order history and payment status
+  - View order history and payment status 
+- ** auth **
+  - 
 
 ---
 
@@ -33,13 +35,13 @@ A modern, full-stack online clothing store built with **Next.js**, featuring aut
 | **Frontend** | Next.js                         |
 | **Backend**  | Next.js API Routes              |
 | **Database** | PostgreSQL + Prisma (or MongoDB + Mongoose) |
-| **Auth**     | NextAuth.js with Credentials + JWT |
+| **Auth**     | NextAuth.js with Credentials + JWT/clerk |
 | **Payments** | PayFast, Ozow, Yoco             |
 | **Image CDN**| Cloudinary / AWS S3             |
 | **State**    | React Context API / Zustand     |
 | **Testing**  | `curl`, Postman                 |
 | **Deploy**   | Vercel, Railway, or Render      |
-| **Email**    | Resend / Mailgun                |
+| **Email**    | Resend / Mailgun / nodemailer   |               |
 
 ---
 ##  Checkout & Payment
@@ -67,6 +69,7 @@ User {
   name: string
   createdAt: Date
   updatedAt: Date
+  role:string
 }
 ```
 
@@ -106,13 +109,29 @@ Product {
   description: string
   price: number
   images: string[]
-  sizes: string[]
+  variants: string[]
   category: string
   inStock: number
   createdAt: Date
   updatedAt: Date
 }
 ```
+##model Variant {
+  id         String   @id @default(uuid())
+  productId  String
+  product    Product  @relation(fields: [productId], references: [id])
+  
+  size       String?  // nullable if not applicable
+  color      String?  // nullable if not applicable
+  price      Float
+  quantity   Int
+  trackQty   Boolean  @default(true)
+
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@unique([productId, size, color]) // prevent duplicate variant entries
+}
 
 ### Wishlist
 
