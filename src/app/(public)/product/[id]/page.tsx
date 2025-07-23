@@ -1,7 +1,7 @@
 'use client'
-import React, { useState } from 'react'
+
+import React, { useState, useEffect } from 'react'
 import { Product, Variant } from '@/app/utils/types'
-import db from '@/app/libs/db.json'
 import AddToCart from '@/app/components/storefront/AddToCart'
 
 interface PageProps {
@@ -12,19 +12,30 @@ interface PageProps {
 
 function ProductID({ params }: PageProps) {
   const { id } = params
+  const [productInfo, setProductInfo] = useState<Product | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [selectedVariant, setSelectedVariant] = useState<Variant | null>(null)
 
-  // Fetch product from db
-  const { categories } = db
-  const allItems = categories.map((cat) => cat.items).flat()
-  const productInfo = allItems.find((item) => item.id == id) as Product | undefined
+  useEffect(() => {
+    const fetchProduct = async () => {
+      try {
+        const res = await fetch(`/api/getSingleProduct?id=${id}`)
+        const data = await res.json()
+        if (!res.ok) throw new Error(data.error)
+        setProductInfo(data)
+        setSelectedVariant(data.variants?.[0] || null)
+      } catch (err) {
+        console.error('Failed to load product', err)
+      } finally {
+        setLoading(false)
+      }
+    }
 
-  // If not found, show fallback
+    fetchProduct()
+  }, [id])
+
+  if (loading) return <div>Loading...</div>
   if (!productInfo) return <div>Product not found</div>
-
-  // State to manage selected variant
-  const [selectedVariant, setSelectedVariant] = useState<Variant | null>(
-    productInfo.variants?.[0] || null
-  )
 
   const { name, description, price, bestSeller, weekSale, image, variants } = productInfo
 
@@ -37,13 +48,12 @@ function ProductID({ params }: PageProps) {
       <p>Best Seller: {bestSeller ? 'Yes' : 'No'}</p>
       <p>Weekly Sale: {weekSale ? 'Yes' : 'No'}</p>
 
-      {/* Variant Selection Buttons */}
       {variants?.length > 1 &&
-        variants.map((v) => {
+        variants.map((v,i) => {
           const isSelected = selectedVariant?.name === v.name
           return (
             <button
-              key={v.name}
+              key={i}
               onClick={() => setSelectedVariant(v)}
               disabled={v.trackQty && v.qty <= 0}
               style={{
@@ -71,3 +81,5 @@ function ProductID({ params }: PageProps) {
 }
 
 export default ProductID
+
+

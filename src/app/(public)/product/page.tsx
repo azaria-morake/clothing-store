@@ -1,20 +1,18 @@
 import React from 'react'
-import db from '@/app/libs/db.json'
 import ProductGrid from '@/app/components/storefront/ProductGird';
 import { Product } from '@/app/utils/types';
-function Product() {
-    // replace with db call
-    const {categories,storeName}=db;
-    let items =categories.map((e)=>{return e.items});
-    let fulllist=items.flat();
+import { getProducts } from '@/app/libs/dbCalls';
+async function ProductPage() {
     
+    let items =await getProducts()
+   
   return (
     <div>
         <ProductGrid
-        data={fulllist as Product[]}
+        data={items as Product[]}
         />
     </div>
   )
 }
 
-export default Product
+export default ProductPage
